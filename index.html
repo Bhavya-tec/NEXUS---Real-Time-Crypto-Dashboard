@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>NEXUS — Crypto Markets</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@300;400;500;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <canvas id="bgCanvas"></canvas>
+  <div class="noise"></div>
+
+  <!-- Navigation -->
+  <nav id="nav">
+    <div class="nav-inner">
+      <div class="nav-logo">
+        <span class="logo-dot"></span>
+        NEXUS
+      </div>
+      <div class="nav-links">
+        <button class="nav-link is-active" data-page="dashboard">Dashboard</button>
+        <button class="nav-link" data-page="markets">Markets</button>
+        <button class="nav-link" data-page="trade">Trade</button>
+        <button class="nav-link" data-page="news">News</button>
+      </div>
+      <div class="nav-status">
+        <span class="status-dot"></span>
+        <span id="statusText">Connecting…</span>
+      </div>
+      <div class="nav-user-slot" id="navUserSlot"></div>
+    </div>
+  </nav>
+
+  <!-- PAGE: DASHBOARD -->
+  <div class="page is-active" id="page-dashboard">
+
+    <section class="hero">
+      <div class="hero-eyebrow">Real-time crypto intelligence</div>
+      <h1 class="hero-title">
+        <span class="hero-line">Markets, Decoded</span>
+      </h1>
+      <p class="hero-sub">Your edge in the chaos.</p>
+      <div class="hero-ticker" id="heroTicker"></div>
+    </section>
+
+    <!-- Stat cards -->
+    <section class="section" data-reveal>
+      <div class="section-label">Core Assets</div>
+      <div class="stat-row" id="statRow"></div>
+    </section>
+
+    <!-- Main chart + sidebar -->
+    <section class="section chart-section" data-reveal>
+      <div class="chart-panel glass-card">
+        <div class="chart-header">
+          <div class="chart-tabs" id="chartTabs"></div>
+          <div class="chart-meta">
+            <span id="chartPrice" class="chart-price">—</span>
+            <span id="chartChange" class="chart-change">—</span>
+          </div>
+        </div>
+        <canvas id="mainChart"></canvas>
+      </div>
+      <div class="sidebar">
+        <div class="glass-card sidebar-card" id="gaugeCard">
+          <div class="card-label">Market Sentiment</div>
+          <canvas id="gaugeChart" width="180" height="110"></canvas>
+          <div id="gaugeLabel" class="gauge-label">—</div>
+        </div>
+        <div class="glass-card sidebar-card" id="donutCard">
+          <div class="card-label">Portfolio Split</div>
+          <canvas id="donutChart" width="180" height="140"></canvas>
+        </div>
+      </div>
+    </section>
+
+    <!-- Momentum signals -->
+    <section class="section" data-reveal>
+      <div class="section-label">Momentum Signals <span class="disclaimer">Illustrative only — not financial advice</span></div>
+      <div class="signals-grid" id="signalsGrid"></div>
+    </section>
+
+    <!-- Watchlist rail -->
+    <section class="section" data-reveal>
+      <div class="section-label">Extended Watchlist</div>
+      <div class="watchlist-timeline" id="watchlistTimeline"></div>
+    </section>
+
+    <footer class="footer">
+      Built with vanilla JS · Canvas charts · Live CoinGecko API
+    </footer>
+  </div>
+
+  <!-- PAGE: MARKETS -->
+  <div class="page" id="page-markets">
+    <section class="hero hero--small">
+      <div class="hero-eyebrow">All Assets</div>
+      <h1 class="hero-title"><span class="hero-line">Markets</span></h1>
+    </section>
+    <section class="section" data-reveal>
+      <div class="markets-table glass-card">
+        <div class="table-header">
+          <span>#</span><span>Asset</span><span>Price</span><span>24h %</span><span>High</span><span>Low</span><span>Sparkline</span>
+        </div>
+        <div id="marketsTableBody"></div>
+      </div>
+    </section>
+  </div>
+
+  <!-- PAGE: TRADE -->
+  <div class="page" id="page-trade">
+    <section class="hero hero--small">
+      <div class="hero-eyebrow">Track it. Trade it. Own it.</div>
+      <h1 class="hero-title"><span class="hero-line">Demo Trading</span></h1>
+      <p class="hero-sub">$10,000 virtual balance · Real-time prices · No real money</p>
+    </section>
+
+    <!-- Backend status banner -->
+    <div class="backend-banner" id="backendBanner">
+      <span class="backend-icon">⚡</span>
+      <span id="backendMsg">Connecting to backend at localhost:3001…</span>
+      <span class="backend-hint">Run <code>npm install &amp;&amp; node server.js</code> in the project folder</span>
+    </div>
+
+    <!-- Account summary bar -->
+    <section class="section trade-summary-section" data-reveal>
+      <div class="trade-summary-row">
+        <div class="glass-card trade-summary-card">
+          <div class="ts-label">Cash Balance</div>
+          <div class="ts-val" id="tsBalance">$—</div>
+        </div>
+        <div class="glass-card trade-summary-card">
+          <div class="ts-label">Portfolio Value</div>
+          <div class="ts-val" id="tsPortfolio">$—</div>
+        </div>
+        <div class="glass-card trade-summary-card">
+          <div class="ts-label">Total P&amp;L</div>
+          <div class="ts-val" id="tsPnl">$—</div>
+          <div class="ts-pct" id="tsPnlPct">—</div>
+        </div>
+        <div class="glass-card trade-summary-card">
+          <div class="ts-label">Open Positions</div>
+          <div class="ts-val" id="tsPositions">—</div>
+        </div>
+        <button class="reset-btn glass-card" id="resetBtn">↺ Reset Account</button>
+      </div>
+    </section>
+
+    <!-- Main trade layout -->
+    <section class="section trade-main" data-reveal>
+
+      <!-- Left: Order form -->
+      <div class="glass-card trade-order-panel">
+        <div class="trade-panel-title">Place Order</div>
+
+        <div class="order-coin-select">
+          <label class="order-label">Asset</label>
+          <div class="coin-select-wrapper">
+            <select id="orderCoin" class="coin-select"></select>
+            <div class="coin-live-price">
+              <span class="clp-price" id="orderLivePrice">$—</span>
+              <span class="clp-chg" id="orderLiveChg">—</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="order-action-tabs">
+          <button class="order-tab is-buy is-active" id="tabBuy">Buy</button>
+          <button class="order-tab is-sell" id="tabSell">Sell</button>
+        </div>
+
+        <div class="order-amount-row">
+          <label class="order-label">Amount (USD)</label>
+          <div class="order-amount-input-wrap">
+            <span class="dollar-sign">$</span>
+            <input type="number" id="orderAmount" class="order-amount-input" placeholder="0.00" min="1" step="1" />
+          </div>
+          <div class="quick-amounts">
+            <button class="qa-btn" data-amt="100">$100</button>
+            <button class="qa-btn" data-amt="500">$500</button>
+            <button class="qa-btn" data-amt="1000">$1K</button>
+            <button class="qa-btn" data-amt="all">All In</button>
+          </div>
+        </div>
+
+        <div class="order-preview" id="orderPreview">
+          <div class="preview-row"><span>Units</span><span id="prevUnits">—</span></div>
+          <div class="preview-row"><span>Price</span><span id="prevPrice">—</span></div>
+          <div class="preview-row"><span>Total</span><span id="prevTotal">—</span></div>
+        </div>
+
+        <button class="place-order-btn" id="placeOrderBtn">Buy</button>
+        <div class="order-msg" id="orderMsg"></div>
+      </div>
+
+      <!-- Right: Holdings -->
+      <div class="trade-right">
+        <div class="glass-card trade-holdings-panel">
+          <div class="trade-panel-title">My Holdings</div>
+          <div id="holdingsList" class="holdings-list">
+            <div class="empty-state">No positions yet. Place your first trade.</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Order history -->
+    <section class="section" data-reveal>
+      <div class="section-label">Order History</div>
+      <div class="glass-card order-history-panel">
+        <div class="order-history-header">
+          <span>Time</span><span>Asset</span><span>Action</span><span>Units</span><span>Price</span><span>Total</span>
+        </div>
+        <div id="orderHistoryBody" class="order-history-body">
+          <div class="empty-state">No trades yet.</div>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <!-- PAGE: NEWS -->
+  <div class="page" id="page-news">
+    <section class="hero hero--small">
+      <div class="hero-eyebrow">Live News · Sentiment Analysis</div>
+      <h1 class="hero-title"><span class="hero-line">Market News</span></h1>
+      <p class="hero-sub">Where numbers tell the truth.</p>
+    </section>
+
+    <!-- Sentiment overview -->
+    <section class="section" data-reveal>
+      <div class="section-label">Market Sentiment <span class="disclaimer">Based on recent headlines</span></div>
+      <div class="sentiment-overview" id="sentimentOverview">
+        <div class="glass-card sentiment-mood-card" id="moodCard">
+          <div class="mood-label">Overall Mood</div>
+          <div class="mood-val" id="moodVal">—</div>
+        </div>
+        <div class="glass-card sentiment-stat-card">
+          <div class="ss-bar bullish-bar" id="bullishBar" style="width:0%"></div>
+          <div class="ss-label"><span class="dot bullish"></span>Bullish <span id="bullishCount">0</span></div>
+        </div>
+        <div class="glass-card sentiment-stat-card">
+          <div class="ss-bar bearish-bar" id="bearishBar" style="width:0%"></div>
+          <div class="ss-label"><span class="dot bearish"></span>Bearish <span id="bearishCount">0</span></div>
+        </div>
+        <div class="glass-card sentiment-stat-card">
+          <div class="ss-bar neutral-bar" id="neutralBar" style="width:0%"></div>
+          <div class="ss-label"><span class="dot neutral"></span>Neutral <span id="neutralCount">0</span></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Filters -->
+    <section class="section" data-reveal>
+      <div class="news-filters">
+        <div class="filter-group">
+          <span class="filter-label">Sentiment</span>
+          <div class="filter-btns" id="sentimentFilter">
+            <button class="filter-btn is-active" data-val="all">All</button>
+            <button class="filter-btn bullish-btn" data-val="bullish">Bullish</button>
+            <button class="filter-btn bearish-btn" data-val="bearish">Bearish</button>
+            <button class="filter-btn" data-val="neutral">Neutral</button>
+          </div>
+        </div>
+        <div class="filter-group">
+          <span class="filter-label">Coin</span>
+          <div class="filter-btns" id="coinFilter">
+            <button class="filter-btn is-active" data-val="">All coins</button>
+            <button class="filter-btn" data-val="bitcoin">BTC</button>
+            <button class="filter-btn" data-val="ethereum">ETH</button>
+            <button class="filter-btn" data-val="solana">SOL</button>
+            <button class="filter-btn" data-val="ripple">XRP</button>
+          </div>
+        </div>
+        <button class="refresh-news-btn glass-card" id="refreshNewsBtn">↻ Refresh</button>
+      </div>
+    </section>
+
+    <!-- News grid -->
+    <section class="section" data-reveal>
+      <div class="news-grid" id="newsGrid">
+        <div class="news-loading">Fetching latest crypto news…</div>
+      </div>
+      <div class="news-cached-at" id="newsCachedAt"></div>
+    </section>
+  </div>
+
+  <!-- Focus overlay -->
+  <div class="focus-overlay" id="focusOverlay" role="dialog" aria-modal="true">
+    <div class="focus-panel glass-card" id="focusPanel">
+      <button class="focus-close" id="focusClose" aria-label="Close">✕</button>
+      <div class="focus-header">
+        <div>
+          <div class="focus-name" id="focusName">—</div>
+          <div class="focus-price" id="focusPrice">—</div>
+          <div class="focus-change" id="focusChange">—</div>
+        </div>
+        <canvas id="focusChart" width="280" height="100"></canvas>
+      </div>
+      <div class="focus-stats" id="focusStats"></div>
+    </div>
+  </div>
+
+  <!-- Auth Modal -->
+  <div class="auth-overlay" id="authOverlay">
+    <div class="auth-panel glass-card">
+
+      <div class="auth-logo">
+        <span class="logo-dot"></span>
+        TERMINAL
+      </div>
+      <div class="auth-tagline">Real-time crypto intelligence</div>
+
+      <div class="auth-tabs">
+        <button class="auth-tab is-active" id="authTabLogin">Login</button>
+        <button class="auth-tab" id="authTabRegister">Register</button>
+      </div>
+
+      <div class="auth-form" id="authForm">
+        <div class="auth-field">
+          <label class="auth-label">Email</label>
+          <input type="email" id="authEmail" class="auth-input" placeholder="you@example.com" autocomplete="email" />
+        </div>
+        <div class="auth-field">
+          <label class="auth-label">Password</label>
+          <input type="password" id="authPassword" class="auth-input" placeholder="Min. 6 characters" autocomplete="current-password" />
+        </div>
+        <div class="auth-error" id="authError"></div>
+        <button class="auth-submit" id="authSubmit">Login</button>
+        <div class="auth-switch">
+          Don't have an account?
+          <button class="auth-switch-btn" id="authSwitchBtn">Register</button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Nav user info (hidden until logged in) -->
+  <div class="nav-user" id="navUser" style="display:none">
+    <span class="nav-user-email" id="navUserEmail"></span>
+    <button class="nav-logout" id="navLogout">Logout</button>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
