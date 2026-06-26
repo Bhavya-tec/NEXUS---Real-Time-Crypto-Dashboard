@@ -1,5 +1,4 @@
-<<<<<<< HEAD
-# TERMINAL — Real-Time Crypto Dashboard
+# NEXUS — Real-Time Crypto Dashboard
 
 A full-stack crypto trading dashboard built with **vanilla HTML/CSS/JS** on the frontend and **Node.js + Express** on the backend. Zero frontend libraries — every chart, animation, and UI component is hand-built from scratch.
 
@@ -208,7 +207,3 @@ This is a portfolio/demo project. For production use:
 ## License
 
 MIT — free to use, modify, and distribute.
-=======
-# NEXUS---Real-Time-Crypto-Dashboard
-Real-time crypto dashboard with paper trading, JWT auth, PostgreSQL, live news sentiment analysis. Built with vanilla JS, Node.js, Express — zero frontend libraries.
->>>>>>> 6c9decf2473c2a4bef2eba97deada1d38dd8b711

@@ -5,7 +5,7 @@
   --glass-hover:  rgba(255,255,255,0.10);
   --glass-border: rgba(255,255,255,0.10);
   --glass-border-hover: rgba(255,255,255,0.22);
-  --green:        #00F5A0;
+  --green:        #1db954;
   --green-dim:    rgba(0,245,160,0.12);
   --red:          #FF4560;
   --red-dim:      rgba(255,69,96,0.12);
@@ -17,7 +17,7 @@
   --ink-2:        rgba(255,255,255,0.50);
   --ink-3:        rgba(255,255,255,0.28);
   --ink-4:        rgba(255,255,255,0.07);
-  --font-display: 'Space Grotesk', sans-serif;
+  --font-display: 'Fraunces', serif;
   --font-mono:    'JetBrains Mono', monospace;
   --blur:         blur(20px);
   --blur-sm:      blur(10px);
@@ -90,10 +90,8 @@ body {
   z-index: 100;
   padding: 0 32px;
   height: 60px;
-  background: rgba(5,8,16,0.7);
   backdrop-filter: var(--blur);
   -webkit-backdrop-filter: var(--blur);
-  border-bottom: 1px solid var(--glass-border);
 }
 .nav-inner {
   max-width: 1200px;
